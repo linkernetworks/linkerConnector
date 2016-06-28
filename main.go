@@ -14,14 +14,14 @@ import (
 )
 
 var (
-	serverAddr = flag.String("brokers", "localhost:9092", "The comma separated list of server could be brokers in the Kafka cluster or spark address")
+	serverAddr = flag.String("server", "localhost:9092", "The comma separated list of server could be brokers in the Kafka cluster or spark address")
 	topic      = flag.String("topic", "", "The topic to produce")
 	interval   = flag.Int("interval", 0, "interval to retrieval data(millisecond), default 0 is not repeat.")
 	dest       = flag.String("dest", "kafka", "Destination to kafka, spark and stdout")
 	logger     = log.New(os.Stderr, "", log.LstdFlags)
 )
 
-func kafkaProducer(topic string, key string, value string) {
+func kafkaProducer(srv string, topic string, key string, value string) {
 	partitionerConstructor := sarama.NewHashPartitioner
 
 	var keyEncoder, valueEncoder sarama.Encoder
@@ -35,7 +35,7 @@ func kafkaProducer(topic string, key string, value string) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = partitionerConstructor
 
-	producer, err := sarama.NewSyncProducer(strings.Split(*serverAddr, ","), config)
+	producer, err := sarama.NewSyncProducer(strings.Split(srv, ","), config)
 	if err != nil {
 		logger.Fatalln("FAILED to open the producer:", err)
 	}
@@ -57,7 +57,7 @@ func kafkaProducer(topic string, key string, value string) {
 func sendData(topic string, key string, value string) {
 	switch {
 	case *dest == "kafka":
-		kafkaProducer(topic, key, value)
+		kafkaProducer(*serverAddr, topic, key, value)
 	case *dest == "spark":
 		netStringPut(*serverAddr, fmt.Sprintf("%s:%s", key, value))
 	case *dest == "stdout":
@@ -74,7 +74,6 @@ func main() {
 	//default with verbose
 	sarama.Logger = logger
 
-	// netStringPut("localhost", 9999, "asdffff")
 	for {
 
 		stat, err := linuxproc.ReadStat("/proc/stat")
@@ -83,21 +82,15 @@ func main() {
 		}
 
 		for _, s := range stat.CPUStats {
-			// s.User
-			// s.Nice
-			// s.System
-			// s.Idle
-			// s.IOWait
 			log.Println("Get data:", s)
 			sendData(*topic, "User", strconv.FormatUint(s.User, 64))
 			sendData(*topic, "Nice", strconv.FormatUint(s.Nice, 64))
 		}
+
+		sendData(*topic, "Processes", strconv.FormatUint(stat.Processes, 64))
+
 		time.Sleep(time.Millisecond * time.Duration(*interval))
 
-		// stat.CPUStatAll
-		// stat.CPUStats
-		// stat.Processes
-		// stat.BootTime
 	}
 
 }
