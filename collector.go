@@ -2,10 +2,19 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
+	"os/exec"
+	"regexp"
+	"strconv"
 	"time"
 
 	linuxproc "github.com/c9s/goprocinfo/linux"
+)
+
+var (
+	processID = regexp.MustCompile(`^[0-9]*$`)
 )
 
 //DataCollector : Data Collector currently working for Linux first.
@@ -20,14 +29,47 @@ func NewDataCollector() *DataCollector {
 
 //GetProcessInfo :Get ProcessInfo JSON format string.
 func (d *DataCollector) GetProcessInfo() string {
-	var retProcessInfo ProcessInfo
-	status, err := linuxproc.ReadProcessStatus("/proc/self/status")
+	files, err := ioutil.ReadDir(".")
 	if err != nil {
-		log.Fatal("status read fail")
+		log.Fatal(err)
 	}
-	retProcessInfo.ProcInfo = *status
+
+	var retProcessInfo ProcessInfo
+
+	for _, file := range files {
+		if processID.MatchString(file.Name()) {
+
+			var procDetail ProcessDetail
+			procDetail.ProcID, _ = strconv.ParseUint(file.Name(), 10, 64)
+
+			status, err := linuxproc.ReadProcessStatus(fmt.Sprintf("/proc/%s/status", file.Name()))
+			if err != nil {
+				log.Println("status read fail.")
+			} else {
+				procDetail.StatusInfo = *status
+			}
+
+			stat, err := linuxproc.ReadProcessStat(fmt.Sprintf("/proc/%s/stat", file.Name()))
+			if err != nil {
+				log.Println("status read fail.")
+			} else {
+				procDetail.StateInfo = *stat
+			}
+
+			retProcessInfo.Procs = append(retProcessInfo.Procs, procDetail)
+		}
+		log.Println(file.Name())
+	}
+
+	stdout, err := exec.Command("hostname").CombinedOutput()
+	if err != nil {
+		log.Println("hostname cannot retrieval.")
+	} else {
+		retProcessInfo.MachineID = string(stdout)
+		log.Println("Machine ID:", retProcessInfo.MachineID)
+	}
+
 	retProcessInfo.Timestamp = time.Now().Unix()
-	//TODO. Still need implement since FileInfo is not exist in proc
 
 	//json marshaling
 	retJSON, err := json.Marshal(retProcessInfo)

@@ -25,7 +25,7 @@ func main() {
 		Short: "Linux system data collector and send to target destination",
 		Run: func(cmd *cobra.Command, args []string) {
 			if runtime.GOOS != "linux" {
-				fmt.Println("Collect data from linux for now, application exist.")
+				fmt.Println("Collect data from linux for now, application exit.")
 				return
 			}
 

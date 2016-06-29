@@ -25,6 +25,9 @@ Usage
 
 ```
 linkerConnector  (-server=XXX) (-dest=XXX) ...
+
+## Check all command destription
+linkerConnector --help
 ```    
 
 Options
@@ -37,3 +40,13 @@ Options
 - `--help` : Display detail command help.
 
 
+TODOs
+---------------
+
+- [ ] DataCollect
+	- [X] ProcessInfo
+		- [X] Proc Information
+		- [X] File Info
+	- [ ] MachineIndo
+- [ ] Data Generator
+- [ ] Randomize data generator

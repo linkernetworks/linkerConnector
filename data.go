@@ -4,21 +4,20 @@ import (
 	linuxproc "github.com/c9s/goprocinfo/linux"
 )
 
+//ProcessDetail :
+type ProcessDetail struct {
+	ProcID     uint64                  `json:"proc_id"`
+	StatusInfo linuxproc.ProcessStatus `json:"status_info"`
+	StateInfo  linuxproc.ProcessStat   `json:"stat_info"`
+}
+
 //ProcessInfo :
 type ProcessInfo struct {
 	MachineID string `json:"machine_id"`
 	//Timestamp : Unix time
-	Timestamp int64                   `json:"timestamp"`
-	ProcInfo  linuxproc.ProcessStatus `json:"proc_info"`
+	Timestamp int64 `json:"timestamp"`
 
-	FileInfo struct {
-		MinFlt  int `json:"min_flt"`
-		CminFlt int `json:"cmin_flt"`
-		MajFlt  int `json:"maj_flt"`
-		CmajFlt int `json:"cmaj_flt"`
-		Vsize   int `json:"vsize"`
-		TaskCPU int `json:"task_cpu"`
-	} `json:"file_info"`
+	Procs []ProcessDetail `json:"procs"`
 }
 
 //MachineInfo :Machine information
