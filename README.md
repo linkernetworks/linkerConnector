@@ -30,9 +30,10 @@ linkerConnector  (-server=XXX) (-dest=XXX) ...
 Options
 ---------------
 
-- `server` : The comma separated list of server could be brokers in the Kafka cluster or spark address.
-- `topic` : The topic to kafka produce.
-- `interval` : Time interval(second) to retrieval data , default 0 is not repeat.
-- `dest` : Destination to `kafka`, `spark` and `stdout`.
+- `server`/`s` : The comma separated list of server could be brokers in the Kafka cluster or spark address.
+- `topic`/`t` : The topic to kafka produce.
+- `interval`/`i` : Time interval(second) to retrieval data , default 0 is not repeat.
+- `dest`/`d` : Destination to `kafka`, `spark` and `stdout`.
+- `--help` : Display detail command help.
 
 
