@@ -1,4 +1,4 @@
-linkerConnector: Linux system dat collector and forward to Spark/Kafka.
+linkerConnector: Linux system data collector and forward to Spark/Kafka.
 ======================
 [![Build Status](https://travis-ci.org/LinkerNetworks/linkerConnector.svg)](https://travis-ci.org/LinkerNetworks/linkerConnector)
 
@@ -10,6 +10,8 @@ A tool to get Linux system data via `/proc` refer more detail on [spec](http://w
 Install
 --------------
 
+#### 
+```
     go get -u -x github.com/LinkerNetworks/linkerConnector
 
 Usage
