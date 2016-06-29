@@ -29,7 +29,7 @@ func NewDataCollector() *DataCollector {
 
 //GetProcessInfo :Get ProcessInfo JSON format string.
 func (d *DataCollector) GetProcessInfo() string {
-	files, err := ioutil.ReadDir(".")
+	files, err := ioutil.ReadDir("/proc")
 	if err != nil {
 		log.Fatal(err)
 	}
