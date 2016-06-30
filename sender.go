@@ -3,9 +3,13 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
+	"os"
+	"path"
 	"strings"
+	"time"
 
 	"github.com/Shopify/sarama"
 )
@@ -66,4 +70,34 @@ func sendData(dest string, servAddr string, topic string, key string, value stri
 		log.Println("key=", key, " val=", value)
 	}
 
+	tmpDir, err := ioutil.TempDir("", fmt.Sprintf("linkerConnector-%s", key))
+	if err != nil {
+		panic(err)
+	}
+
+	temFile := fmt.Sprintf(path.Join(tmpDir, "%s-%d.json"), key, time.Now().UnixNano())
+	log.Println("---> Write file to :", temFile)
+	err = writeFile(temFile, value)
+
+	if err != nil {
+		log.Fatal("Write file error:", err)
+	}
+}
+
+func writeFile(file string, data string) error {
+	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0600)
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintf(f, "%s", data)
+
+	if err != nil {
+		f.Close()
+		return err
+	}
+
+	f.Sync()
+	f.Close()
+	return nil
 }

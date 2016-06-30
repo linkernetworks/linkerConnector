@@ -1,4 +1,4 @@
-linkerConnector: Linux system data collector and forward to Spark/Kafka.
+linkerConnector: Linux system data collector and forward to target destination.
 ======================
 [![Build Status](https://travis-ci.org/LinkerNetworks/linkerConnector.svg)](https://travis-ci.org/LinkerNetworks/linkerConnector)
 
