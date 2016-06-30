@@ -24,19 +24,10 @@ type ProcessInfo struct {
 type MachineInfo struct {
 	MachineID string `json:"machine_id"`
 	//Timestamp : Unix time
-	Timestamp int64 `json:"timestamp"`
-	CPUInfo   []struct {
-		Processor string `json:"processor"`
-		Model     string `json:"model"`
-		ModelName string `json:"model_name"`
-		CPUMHz    int    `json:"cpu MHz"`
-		CacheSize int    `json:"cache size"`
-	} `json:"cpu_info"`
-	MemInfo struct {
-		MemTotal     int `json:"MemTotal"`
-		MemFree      int `json:"MemFree"`
-		MemAvailable int `json:"MemAvailable"`
-	} `json:"mem_info"`
+	Timestamp int64             `json:"timestamp"`
+	CPUInfo   linuxproc.CPUInfo `json:"cpu_info"`
+	MemInfo   linuxproc.MemInfo `json:"mem_info"`
+
 	NetInfo []struct {
 		Protocal   string `json:"protocal"`
 		Mac        string `json:"mac"`
