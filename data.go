@@ -40,12 +40,12 @@ type MachineInfo struct {
 		Compressed string `json:"compressed"`
 	} `json:"net_info"`
 	DiskInfo []struct {
-		inputRate    int    `json:"input_rate"`
-		outputRate   int    `json:"output_rate"`
-		errRate      int    `json:"err_rate"`
-		seriesNumber string `json:"serues_number"`
-		typeOfDisk 	 string `json:"disk_type"`
-		diskSize     int    `json:"disk_size"`
-		usuage       float  `json:"usuage"`
+		inputRate    int     `json:"input_rate"`
+		outputRate   int     `json:"output_rate"`
+		errRate      int     `json:"err_rate"`
+		seriesNumber string  `json:"serues_number"`
+		typeOfDisk   string  `json:"disk_type"`
+		diskSize     int     `json:"disk_size"`
+		usuage       float64 `json:"usuage"`
 	} `json:"disk_info"`
 }
