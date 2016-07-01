@@ -70,6 +70,7 @@ func sendData(dest string, servAddr string, topic string, key string, value stri
 		log.Println("key=", key, " val=", value)
 	}
 
+	//Write to file locally for all collect data.
 	tmpDir, err := ioutil.TempDir("", fmt.Sprintf("linkerConnector-%s", key))
 	if err != nil {
 		panic(err)

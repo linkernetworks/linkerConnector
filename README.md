@@ -48,5 +48,14 @@ TODOs
 		- [X] Proc Information
 		- [X] File Info
 	- [ ] MachineIndo
+		- [X] CPUInfo
+		- [X] MemInfo
+		- [ ] NetInfo
+		- [ ] DiskInfo
+- [ ] Data Forwarding
+	- [X] Kafka
+	- [X] Spark Streaming
+	- [X] JSON file storage
+	- [ ] Google Cloud Storage
 - [ ] Data Generator
 - [ ] Randomize data generator

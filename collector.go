@@ -61,15 +61,8 @@ func (d *DataCollector) GetProcessInfo() string {
 		log.Println(file.Name())
 	}
 
-	stdout, err := exec.Command("hostname").CombinedOutput()
-	if err != nil {
-		log.Println("hostname cannot retrieval.")
-	} else {
-		retProcessInfo.MachineID = string(stdout)
-		log.Println("Machine ID:", retProcessInfo.MachineID)
-	}
-
-	retProcessInfo.Timestamp = time.Now().Unix()
+	retProcessInfo.MachineID = getMachineID()
+	retProcessInfo.Timestamp = getUnixTimestamp()
 
 	//json marshaling
 	retJSON, err := json.Marshal(retProcessInfo)
@@ -84,7 +77,23 @@ func (d *DataCollector) GetProcessInfo() string {
 //GetMachineInfo :Get MachineInfo JSON format string.
 func (d *DataCollector) GetMachineInfo() string {
 	var retMachineInfo MachineInfo
-	retMachineInfo.Timestamp = time.Now().Unix()
+	retMachineInfo.MachineID = getMachineID()
+	retMachineInfo.Timestamp = getUnixTimestamp()
+
+	mInfo, err := linuxproc.ReadMemInfo("/proc/meminfo")
+	if err != nil {
+		log.Println("memory info read fail.")
+	} else {
+		retMachineInfo.MemInfo = *mInfo
+	}
+
+	cInfo, err := linuxproc.ReadCPUInfo("/proc/cpuinfo")
+	if err != nil {
+		log.Println("CPU info read fail.")
+	} else {
+		retMachineInfo.CPUInfo = *cInfo
+	}
+
 	//TODO. Still need implement since all information cannot get from /proc
 
 	retJSON, err := json.Marshal(retMachineInfo)
@@ -93,4 +102,17 @@ func (d *DataCollector) GetMachineInfo() string {
 		return ""
 	}
 	return string(retJSON)
+}
+
+func getUnixTimestamp() int64 {
+	return time.Now().Unix()
+}
+func getMachineID() string {
+	stdout, err := exec.Command("hostname").CombinedOutput()
+	if err != nil {
+		log.Println("hostname cannot retrieval.")
+		return ""
+	}
+
+	return string(stdout)
 }
