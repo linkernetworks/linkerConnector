@@ -37,6 +37,7 @@ Options
 - `topic`/`t` : The topic to kafka produce.
 - `interval`/`i` : Time interval(second) to retrieval data , default 0 is not repeat.
 - `dest`/`d` : Destination to `kafka`, `spark` and `stdout`.
+- `pipe`/`p`: Using pipe mode to forward data. usage `cat data.txt | linkerConnector -p true`
 - `--help` : Display detail command help.
 
 
@@ -57,6 +58,7 @@ TODOs
 - [ ] Data Forwarding
 	- [X] Kafka
 	- [X] Spark Streaming
-	- [X]
+	- [X] Stdout
+	- [X] Pipe mode
 - [ ] Data Generator
 - [ ] Randomize data generator
