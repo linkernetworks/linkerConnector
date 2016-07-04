@@ -52,10 +52,11 @@ TODOs
 		- [X] MemInfo
 		- [ ] NetInfo
 		- [ ] DiskInfo
+	- [ ] Last Login history
+	- [ ] Syslog
 - [ ] Data Forwarding
 	- [X] Kafka
 	- [X] Spark Streaming
-	- [X] JSON file storage
-	- [ ] Google Cloud Storage
+	- [X]
 - [ ] Data Generator
 - [ ] Randomize data generator

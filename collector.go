@@ -94,7 +94,7 @@ func (d *DataCollector) GetMachineInfo() string {
 		retMachineInfo.CPUInfo = *cInfo
 	}
 
-	//TODO. Still need implement since all information cannot get from /proc
+	//TODO. Still need implement since some information cannot get from /proc
 
 	retJSON, err := json.Marshal(retMachineInfo)
 	if err != nil {

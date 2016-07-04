@@ -9,8 +9,8 @@ type ProcessDetail struct {
 	ProcID     uint64                  `json:"proc_id"`
 	StatusInfo linuxproc.ProcessStatus `json:"status_info"`
 	StateInfo  linuxproc.ProcessStat   `json:"stat_info"`
-	inputRate  int                     `json:"input_rate"`
-	outputRate int                     `json:"output_rate"`
+	InputRate  int                     `json:"input_rate"`
+	OutputRate int                     `json:"output_rate"`
 }
 
 //ProcessInfo :
@@ -40,12 +40,12 @@ type MachineInfo struct {
 		Compressed string `json:"compressed"`
 	} `json:"net_info"`
 	DiskInfo []struct {
-		inputRate    int     `json:"input_rate"`
-		outputRate   int     `json:"output_rate"`
-		errRate      int     `json:"err_rate"`
-		seriesNumber string  `json:"serues_number"`
-		typeOfDisk   string  `json:"disk_type"`
-		diskSize     int     `json:"disk_size"`
-		usuage       float32 `json:"usuage"`
+		InputRate    int     `json:"input_rate"`
+		IutputRate   int     `json:"output_rate"`
+		ErrRate      int     `json:"err_rate"`
+		SeriesNumber string  `json:"serues_number"`
+		TypeOfDisk   string  `json:"disk_type"`
+		DiskSize     int     `json:"disk_size"`
+		Usuage       float32 `json:"usuage"`
 	} `json:"disk_info"`
 }
