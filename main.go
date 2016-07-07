@@ -44,8 +44,8 @@ func main() {
 				procInfo := data.GetProcessInfo()
 				machineInfo := data.GetMachineInfo()
 
-				send.SendData(dest, serverAddr, topic, "ProcessInfo", procInfo)
-				send.SendData(dest, serverAddr, topic, "MachineInfo", machineInfo)
+				send.SendData(sendr.SendDataParam{Dest: dest, SerAddr: serverAddr, Topic: topic, Key: "ProcessInfo", Value: procInfo})
+				send.SendData(sendr.SendDataParam{Dest: dest, SerAddr: serverAddr, Topic: topic, Key: "MachineInfo", Value: machineInfo})
 
 				if interval == 0 {
 					return
@@ -74,8 +74,7 @@ func processPipe(reader *bufio.Reader, dest, serverAddr, topic string) {
 		if err != nil && err == io.EOF {
 			break
 		}
-
-		send.SendData(dest, serverAddr, topic, "Pipe", input)
+		send.SendData(sendr.SendDataParam{Dest: dest, SerAddr: serverAddr, Topic: topic, Key: "Pipe", Value: input})
 		line++
 	}
 }

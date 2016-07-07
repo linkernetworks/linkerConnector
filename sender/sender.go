@@ -14,6 +14,16 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+//SendDataParam :
+type SendDataParam struct {
+	Dest    string
+	SerAddr string
+	Topic   string //use for keyspace/database if target is mysql/cassandra
+	Key     string
+	Value   string
+	Table   string //only use if target is database
+}
+
 //Sender :
 type Sender struct {
 	App string
@@ -27,27 +37,33 @@ func NewSender(app string) *Sender {
 }
 
 //SendData :
-func (s *Sender) SendData(dest string, servAddr string, topic string, key string, value string) {
-	switch {
-	case dest == "kafka":
-		kafkaProducer(servAddr, topic, key, value)
-	case dest == "spark":
-		netStringPut(servAddr, fmt.Sprintf("%s:%s", key, value))
-	case dest == "stdout":
-		log.Println("key=", key, " val=", value)
+func (s *Sender) SendData(senderParam SendDataParam) {
+	switch senderParam.Dest {
+	case "kafka":
+		kafkaProducer(senderParam.SerAddr, senderParam.Topic, senderParam.Key, senderParam.Value)
+	case "spark":
+		netStringPut(senderParam.SerAddr, fmt.Sprintf("%s:%s", senderParam.Key, senderParam.Value))
+	case "stdout":
+		log.Println("key=", senderParam.Key, " val=", senderParam.Value)
+	case "cassandra":
+		var dbConfig DBConfig
+		dbConfig.KeySpace = senderParam.Topic
+		dbConfig.ServerList = append(dbConfig.ServerList, senderParam.SerAddr)
+		c := NewCassandra(dbConfig)
+		c.InsertKV(senderParam.Table, senderParam.Key, senderParam.Value)
 	default:
-		log.Println("key=", key, " val=", value)
+		log.Println("key=", senderParam.Key, " val=", senderParam.Value)
 	}
 
 	//Write to file locally for all collect data.
-	tmpDir, err := ioutil.TempDir("", fmt.Sprintf("%s-%s", s.App, key))
+	tmpDir, err := ioutil.TempDir("", fmt.Sprintf("%s-%s", s.App, senderParam.Key))
 	if err != nil {
 		panic(err)
 	}
 
-	temFile := fmt.Sprintf(path.Join(tmpDir, "%s-%d.json"), key, time.Now().UnixNano())
+	temFile := fmt.Sprintf(path.Join(tmpDir, "%s-%d.json"), senderParam.Key, time.Now().UnixNano())
 	log.Println("---> Write file to :", temFile)
-	err = writeFile(temFile, value)
+	err = writeFile(temFile, senderParam.Value)
 
 	if err != nil {
 		log.Fatal("Write file error:", err)
