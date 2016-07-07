@@ -30,7 +30,7 @@ type ProcessInfo struct {
 
 	ProcIO []ProcessIO `json:"proc_io"`
 
-	CPUStatAll linuxproc.CPUStat `json:"cpu_all"`
+	Stat linuxproc.Stat `json:"stat"`
 }
 
 //MachineInfo :Machine information

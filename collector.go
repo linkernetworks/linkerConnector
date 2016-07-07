@@ -65,7 +65,7 @@ func (d *DataCollector) GetProcessInfo() string {
 	if err != nil {
 		log.Println("stat read fail.")
 	} else {
-		retProcessInfo.CPUStatAll = stat.CPUStatAll
+		retProcessInfo.Stat = *stat
 	}
 
 	retProcessInfo.MachineID = getMachineID()
