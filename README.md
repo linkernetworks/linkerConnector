@@ -36,7 +36,7 @@ Options
 - `server`/`s` : The comma separated list of server could be brokers in the Kafka cluster or spark address.
 - `topic`/`t` : The topic to kafka produce.
 - `interval`/`i` : Time interval(second) to retrieval data , default 0 is not repeat.
-- `dest`/`d` : Destination to `kafka`, `spark` and `stdout`.
+- `dest`/`d` : Destination to `kafka`, `spark`, `cassandra` and `stdout`.
 - `pipe`/`p`: Using pipe mode to forward data. usage `cat data.txt | linkerConnector -p true`
 - `--help` : Display detail command help.
 
@@ -60,6 +60,7 @@ TODOs
 	- [X] Spark Streaming
 	- [X] Stdout
 	- [X] Pipe mode
+	- [X] Cassandra
 	- [ ] TBC
 - [ ] Data Generator
 - [ ] Randomize data generator
