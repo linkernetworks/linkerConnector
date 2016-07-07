@@ -8,6 +8,7 @@ before_install:
 
 script:
     - go vet ./...
+    - go test
 #    - $HOME/gopath/bin/goveralls -coverprofile=coverage.cov -service=travis-ci
 #    - bash <(curl -s https://codecov.io/bash)
 #- go test -bench=. -benchmem ./...
