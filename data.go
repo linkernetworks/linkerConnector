@@ -12,11 +12,11 @@ type ProcessDetail struct {
 }
 
 type ProcessIO struct {
-	ProcID     uint64  `json:"proc_id"`
-	DiskInput  int     `json:"disk_input"`
-	DiskOutput int     `json:"disk_output"`
-	NetInput   int     `json:"net_input"`
-	NetOutput  int     `json:"net_output"`
+	ProcID     uint64 `json:"proc_id"`
+	DiskInput  int    `json:"disk_input"`
+	DiskOutput int    `json:"disk_output"`
+	NetInput   int    `json:"net_input"`
+	NetOutput  int    `json:"net_output"`
 }
 
 //ProcessInfo :
@@ -29,7 +29,7 @@ type ProcessInfo struct {
 
 	ProcIO []ProcessIO `json:"proc_io"`
 
-    CPUStatAll linuxproc.CPUStat `json:"cpu_all"`
+	CPUStatAll linuxproc.CPUStat `json:"cpu_all"`
 }
 
 //MachineInfo :Machine information

@@ -49,16 +49,23 @@ func (d *DataCollector) GetProcessInfo() string {
 				procDetail.StatusInfo = *status
 			}
 
-			stat, err := linuxproc.ReadProcessStat(fmt.Sprintf("/proc/%s/stat", file.Name()))
+			pStat, err := linuxproc.ReadProcessStat(fmt.Sprintf("/proc/%s/stat", file.Name()))
 			if err != nil {
 				log.Println("status read fail.")
 			} else {
-				procDetail.StateInfo = *stat
+				procDetail.StateInfo = *pStat
 			}
 
 			retProcessInfo.Procs = append(retProcessInfo.Procs, procDetail)
 		}
 		log.Println(file.Name())
+	}
+
+	stat, err := linuxproc.ReadStat("/proc/stat")
+	if err != nil {
+		log.Println("stat read fail.")
+	} else {
+		retProcessInfo.CPUStatAll = stat.CPUStatAll
 	}
 
 	retProcessInfo.MachineID = getMachineID()
