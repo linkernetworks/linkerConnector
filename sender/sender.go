@@ -1,4 +1,4 @@
-package main
+package Sendr
 
 import (
 	"fmt"
@@ -13,6 +13,46 @@ import (
 
 	"github.com/Shopify/sarama"
 )
+
+//Sender :
+type Sender struct {
+	App string
+}
+
+//NewSender :
+func NewSender(app string) *Sender {
+	s := new(Sender)
+	s.App = app
+	return s
+}
+
+//SendData :
+func (s *Sender) SendData(dest string, servAddr string, topic string, key string, value string) {
+	switch {
+	case dest == "kafka":
+		kafkaProducer(servAddr, topic, key, value)
+	case dest == "spark":
+		netStringPut(servAddr, fmt.Sprintf("%s:%s", key, value))
+	case dest == "stdout":
+		log.Println("key=", key, " val=", value)
+	default:
+		log.Println("key=", key, " val=", value)
+	}
+
+	//Write to file locally for all collect data.
+	tmpDir, err := ioutil.TempDir("", fmt.Sprintf("%s-%s", s.App, key))
+	if err != nil {
+		panic(err)
+	}
+
+	temFile := fmt.Sprintf(path.Join(tmpDir, "%s-%d.json"), key, time.Now().UnixNano())
+	log.Println("---> Write file to :", temFile)
+	err = writeFile(temFile, value)
+
+	if err != nil {
+		log.Fatal("Write file error:", err)
+	}
+}
 
 func netStringPut(host string, out string) error {
 	conn, err := net.Dial("tcp", host)
@@ -41,7 +81,7 @@ func kafkaProducer(srv string, topic string, key string, value string) {
 
 	producer, err := sarama.NewSyncProducer(strings.Split(srv, ","), config)
 	if err != nil {
-		logger.Fatalln("FAILED to open the producer:", err)
+		log.Fatalln("FAILED to open the producer:", err)
 	}
 	defer producer.Close()
 
@@ -52,36 +92,9 @@ func kafkaProducer(srv string, topic string, key string, value string) {
 	})
 
 	if err != nil {
-		logger.Println("FAILED to produce message:", err)
+		log.Println("FAILED to produce message:", err)
 	} else {
 		fmt.Printf("topic=%s\tpartition=%d\toffset=%d\n", topic, partition, offset)
-	}
-}
-
-func sendData(dest string, servAddr string, topic string, key string, value string) {
-	switch {
-	case dest == "kafka":
-		kafkaProducer(servAddr, topic, key, value)
-	case dest == "spark":
-		netStringPut(servAddr, fmt.Sprintf("%s:%s", key, value))
-	case dest == "stdout":
-		log.Println("key=", key, " val=", value)
-	default:
-		log.Println("key=", key, " val=", value)
-	}
-
-	//Write to file locally for all collect data.
-	tmpDir, err := ioutil.TempDir("", fmt.Sprintf("linkerConnector-%s", key))
-	if err != nil {
-		panic(err)
-	}
-
-	temFile := fmt.Sprintf(path.Join(tmpDir, "%s-%d.json"), key, time.Now().UnixNano())
-	log.Println("---> Write file to :", temFile)
-	err = writeFile(temFile, value)
-
-	if err != nil {
-		log.Fatal("Write file error:", err)
 	}
 }
 

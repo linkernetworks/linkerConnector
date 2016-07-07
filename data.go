@@ -11,6 +11,7 @@ type ProcessDetail struct {
 	StateInfo  linuxproc.ProcessStat   `json:"stat_info"`
 }
 
+//ProcessIO :
 type ProcessIO struct {
 	ProcID     uint64 `json:"proc_id"`
 	DiskInput  int    `json:"disk_input"`

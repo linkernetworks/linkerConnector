@@ -60,5 +60,6 @@ TODOs
 	- [X] Spark Streaming
 	- [X] Stdout
 	- [X] Pipe mode
+	- [ ] TBC
 - [ ] Data Generator
 - [ ] Randomize data generator

@@ -4,22 +4,20 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"runtime"
 	"time"
 
-	"github.com/Shopify/sarama"
+	sendr "github.com/LinkerNetworks/linkerConnector/sender"
 	"github.com/spf13/cobra"
 )
 
 var (
-	logger = log.New(os.Stderr, "", log.LstdFlags)
+	send *sendr.Sender
 )
 
 func main() {
-	sarama.Logger = logger
-
+	send = sendr.NewSender("linkerConnector")
 	var serverAddr, topic, dest string
 	var interval int
 	var usingPipe bool
@@ -46,8 +44,8 @@ func main() {
 				procInfo := data.GetProcessInfo()
 				machineInfo := data.GetMachineInfo()
 
-				sendData(dest, serverAddr, topic, "ProcessInfo", procInfo)
-				sendData(dest, serverAddr, topic, "MachineInfo", machineInfo)
+				send.SendData(dest, serverAddr, topic, "ProcessInfo", procInfo)
+				send.SendData(dest, serverAddr, topic, "MachineInfo", machineInfo)
 
 				if interval == 0 {
 					return
@@ -77,7 +75,7 @@ func processPipe(reader *bufio.Reader, dest, serverAddr, topic string) {
 			break
 		}
 
-		sendData(dest, serverAddr, topic, "Pipe", input)
+		send.SendData(dest, serverAddr, topic, "Pipe", input)
 		line++
 	}
 }
