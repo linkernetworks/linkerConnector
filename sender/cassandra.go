@@ -30,12 +30,12 @@ func NewCassandra(dbConfig DBConfig) *Cassandra {
 
 //InsertKV :
 func (c *Cassandra) InsertKV(table, key, value string) error {
-	qStr := fmt.Sprintf("INSERT INTO %s (key, value) VALUES (?, ?)", table)
+	qStr := fmt.Sprintf("INSERT INTO %s (uuid, key, value) VALUES (?, ?, ?)", table)
 	log.Println("CQL:", qStr)
-	if err := c.Session.Query(qStr, key, value).Exec(); err != nil {
+	if err := c.Session.Query(qStr, cassandra.TimeUUID(), key, value).Exec(); err != nil {
 		log.Fatal(err)
 	}
-	iter2 := c.Session.Query("SELECT key,value  FROM test_topic").Iter()
+	iter2 := c.Session.Query("SELECT key,value  FROM raw_record").Iter()
 	for iter2.Scan(&key, &value) {
 		fmt.Println("kafka:", key, value)
 	}
