@@ -58,7 +58,6 @@ func (d *DataCollector) GetProcessInfo() string {
 
 			retProcessInfo.Procs = append(retProcessInfo.Procs, procDetail)
 		}
-		log.Println(file.Name())
 	}
 
 	stat, err := linuxproc.ReadStat("/proc/stat")
