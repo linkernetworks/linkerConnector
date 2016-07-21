@@ -40,6 +40,17 @@ Options
 - `pipe`/`p`: Using pipe mode to forward data. usage `cat data.txt | linkerConnector -p true`
 - `--help` : Display detail command help.
 
+Important Data
+---------------
+
+- Disk I/O `/proc/{PID}/io`
+- Process Status: (Zombie, VM Data) `/proc/{PID}/status`.
+  - `state` (R is running, S is sleeping, D is sleeping in an uninterruptible wait, Z is zombie, T is traced or stopped).
+  - Zombie: No parent process.
+- How to find parent process:
+  -  `ps axjf` (Linux only)
+- Hardware Infomation Dump:
+  - `dmidecode`, only dump memory `dmidecode -- type memory` 
 
 TODOs
 ---------------
