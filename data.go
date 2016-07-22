@@ -23,46 +23,42 @@ type ProcessIO struct {
 //ProcessInfo :
 type ProcessInfo struct {
 	MachineID string `json:"machine_id"`
-	//Timestamp : Unix time
-	Timestamp int64 `json:"timestamp"`
+	Timestamp int64  `json:"timestamp"`
 
-	Procs []ProcessDetail `json:"procs"`
-
-	ProcIO []ProcessIO `json:"proc_io"`
-
-	Stat linuxproc.Stat `json:"stat"`
+	Procs  []ProcessDetail `json:"procs"`
+	ProcIO []ProcessIO     `json:"proc_io"`
+	Stat   linuxproc.Stat  `json:"stat"`
 }
 
 //MachineInfo :Machine information
 type MachineInfo struct {
-	MachineID string `json:"machine_id"`
-	//Timestamp : Unix time
+	MachineID string            `json:"machine_id"`
 	Timestamp int64             `json:"timestamp"`
 	CPUInfo   linuxproc.CPUInfo `json:"cpu_info"`
 	MemInfo   linuxproc.MemInfo `json:"mem_info"`
 	BiosInfo  BIOSInfo          `json:"bios_info"`
 	SysInfo   SystemInformation `json:"system_info"`
 
-	NetInfo []struct {
-		Protocal   string `json:"protocal"`
-		Mac        string `json:"mac"`
-		IP         string `json:"ip"`
-		Rate       string `json:"rate"`
-		Errs       string `json:"errs"`
-		Drop       string `json:"drop"`
-		Compressed string `json:"compressed"`
-		InputRate  int    `json:"input_rate"`
-		OutputRate int    `json:"output_rate"`
-	} `json:"net_info"`
-	DiskInfo []struct {
-		InputRate    int     `json:"input_rate"`
-		OutputRate   int     `json:"output_rate"`
-		ErrRate      int     `json:"err_rate"`
-		SeriesNumber string  `json:"serues_number"`
-		TypeOfDisk   string  `json:"disk_type"`
-		DiskSize     int     `json:"disk_size"`
-		Usuage       float32 `json:"usuage"`
-	} `json:"disk_info"`
+	// NetInfo []struct {
+	// 	Protocal   string `json:"protocal"`
+	// 	Mac        string `json:"mac"`
+	// 	IP         string `json:"ip"`
+	// 	Rate       string `json:"rate"`
+	// 	Errs       string `json:"errs"`
+	// 	Drop       string `json:"drop"`
+	// 	Compressed string `json:"compressed"`
+	// 	InputRate  int    `json:"input_rate"`
+	// 	OutputRate int    `json:"output_rate"`
+	// } `json:"net_info"`
+	// DiskInfo []struct {
+	// 	InputRate    int     `json:"input_rate"`
+	// 	OutputRate   int     `json:"output_rate"`
+	// 	ErrRate      int     `json:"err_rate"`
+	// 	SeriesNumber string  `json:"serues_number"`
+	// 	TypeOfDisk   string  `json:"disk_type"`
+	// 	DiskSize     int     `json:"disk_size"`
+	// 	Usuage       float32 `json:"usuage"`
+	// } `json:"disk_info"`
 }
 
 // BIOS Information
