@@ -38,6 +38,7 @@ Options
 - `interval`/`i` : Time interval(second) to retrieval data , default 0 is not repeat.
 - `dest`/`d` : Destination to `kafka`, `spark`, `cassandra` and `stdout`.
 - `pipe`/`p`: Using pipe mode to forward data. usage `cat data.txt | linkerConnector -p true`
+- `dsiableFileSave` / `d`: Disable local file save.
 - `--help` : Display detail command help.
 
 Important Data
@@ -62,6 +63,8 @@ TODOs
 	- [ ] MachineIndo
 		- [X] CPUInfo
 		- [X] MemInfo
+		- [X] DMIINFO- Bios Information
+		- [X] DMIINFO- System Information
 		- [ ] NetInfo
 		- [ ] DiskInfo
 	- [ ] Last Login history
