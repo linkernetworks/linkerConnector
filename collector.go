@@ -100,7 +100,10 @@ func (d *DataCollector) GetMachineInfo() string {
 		retMachineInfo.CPUInfo = *cInfo
 	}
 
-	//TODO. Still need implement since some information cannot get from /proc
+	err = d.GetDMIInfo(&retMachineInfo)
+	if err != nil {
+		log.Println("Get DMI error:", err)
+	}
 
 	retJSON, err := json.Marshal(retMachineInfo)
 	if err != nil {
@@ -121,4 +124,46 @@ func getMachineID() string {
 	}
 
 	return string(stdout)
+}
+
+//GetDMIInfo :
+func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
+	dmi := NewDMI()
+	err := dmi.Run()
+	if err != nil {
+		log.Println("Get DMI error:", err)
+		return err
+	}
+
+	si, err := dmi.SearchByName("System Information")
+	if err != nil {
+		log.Println("Parse SI failed.")
+	}
+
+	rSI := SystemInformation{
+		Manufacturer: si["Manufacturer"],
+		ProductName:  si["Product Name"],
+		Version:      si["Version"],
+		SerialNumber: si["Serial Number"],
+		UUID:         si["UUID"],
+		WakeupType:   si["Wakeup Type"],
+		SKUNumber:    si["SKU Number"],
+		Family:       si["Family"]}
+	mInfo.SysInfo = rSI
+
+	bi, err := dmi.SearchByName("BIOS Information")
+	if err != nil {
+		log.Println("Parse BI failed.")
+	}
+
+	rBI := BIOSInfo{
+		Vendor:          bi["Vendor"],
+		Version:         bi["Version"],
+		ReleaseDate:     bi["Release Date"],
+		Address:         bi["Address"],
+		RuntimeSize:     bi["Runtime Size"],
+		ROMSize:         bi["ROM Size"],
+		Characteristics: bi["Characteristics"]}
+	mInfo.BiosInfo = rBI
+	return nil
 }

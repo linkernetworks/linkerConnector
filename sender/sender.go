@@ -16,12 +16,13 @@ import (
 
 //SendDataParam :
 type SendDataParam struct {
-	Dest    string
-	SerAddr string
-	Topic   string //use for keyspace/database if target is mysql/cassandra
-	Key     string
-	Value   string
-	Table   string //only use if target is database
+	Dest            string
+	SerAddr         string
+	Topic           string //use for keyspace/database if target is mysql/cassandra
+	Key             string
+	Value           string
+	Table           string //only use if target is database
+	DisableFileSave bool
 }
 
 //Sender :
@@ -53,6 +54,10 @@ func (s *Sender) SendData(senderParam SendDataParam) {
 		c.InsertKV(senderParam.Table, senderParam.Key, senderParam.Value)
 	default:
 		log.Println("key=", senderParam.Key, " val=", senderParam.Value)
+	}
+
+	if senderParam.DisableFileSave {
+		return
 	}
 
 	//Write to file locally for all collect data.
