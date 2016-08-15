@@ -27,12 +27,6 @@ func TestGetMachineInfo(t *testing.T) {
 
 //GetProcessInfo :
 func TestGetProcessInfo(t *testing.T) {
-	//skip if not linux
-	if runtime.GOOS != "linux" {
-		t.Skipf("Skip if not in linux")
-		return
-	}
-
 	d := NewDataCollector()
 	if d == nil {
 		t.Error("Constructor error")

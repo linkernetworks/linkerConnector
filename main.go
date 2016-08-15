@@ -62,7 +62,7 @@ func main() {
 	rootCmd.Flags().StringVarP(&topic, "topic", "t", "", "The topic to kafka produce")
 	rootCmd.Flags().StringVarP(&dest, "dest", "d", "stdout", "Destination to kafka, spark and stdout")
 	rootCmd.Flags().BoolVarP(&usingPipe, "pipe", "p", false, "Using pipe mode to forward data")
-	rootCmd.Flags().BoolVarP(&disableFile, "dsiableFileSave", "f", false, "Disable local file.")
+	rootCmd.Flags().BoolVarP(&disableFile, "dsiableFileSave", "f", false, "Disable local file save.")
 
 	rootCmd.Execute()
 

@@ -10,6 +10,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/docker/engine-api/client"
+	"github.com/docker/engine-api/types"
+	"golang.org/x/net/context"
+
 	linuxproc "github.com/c9s/goprocinfo/linux"
 )
 
@@ -30,12 +34,8 @@ func NewDataCollector() *DataCollector {
 //GetProcessInfo :Get ProcessInfo JSON format string.
 func (d *DataCollector) GetProcessInfo() string {
 	files, err := ioutil.ReadDir("/proc")
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	var retProcessInfo ProcessInfo
-
 	for _, file := range files {
 		if processID.MatchString(file.Name()) {
 
@@ -67,10 +67,11 @@ func (d *DataCollector) GetProcessInfo() string {
 		retProcessInfo.Stat = *stat
 	}
 
+	retProcessInfo.DockerStat = d.GetDockerContainerStat()
 	retProcessInfo.MachineID = getMachineID()
 	retProcessInfo.Timestamp = getUnixTimestamp()
 
-	//json marshaling
+	//json marshal
 	retJSON, err := json.Marshal(retProcessInfo)
 	if err != nil {
 		log.Println("marshall json failed:", err)
@@ -131,7 +132,7 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 	dmi := NewDMI()
 	err := dmi.Run()
 	if err != nil {
-		log.Println("Get DMI error:", err)
+		log.Println("Get DMI error:", err, ", Please install dmidecode before use this.")
 		return err
 	}
 
@@ -165,5 +166,41 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 		ROMSize:         bi["ROM Size"],
 		Characteristics: bi["Characteristics"]}
 	mInfo.BiosInfo = rBI
+	return nil
+}
+
+//GetDockerContainerStat :
+func (d *DataCollector) GetDockerContainerStat() []ContainerInfo {
+	var retContainerInfo []ContainerInfo
+
+	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
+	cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.22", nil, defaultHeaders)
+	if err != nil {
+		panic(err)
+	}
+
+	options := types.ContainerListOptions{All: true}
+	containers, err := cli.ContainerList(context.Background(), options)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, c := range containers {
+		fmt.Println(c.ID)
+		body, err := cli.ContainerStats(context.Background(), c.ID, false)
+		defer body.Close()
+		if err != nil {
+			log.Println(err)
+		}
+		var jsonC ContainerInfo
+		bytContent, err := ioutil.ReadAll(body)
+
+		if err := json.Unmarshal(bytContent, &jsonC); err != nil {
+			panic(err)
+		}
+		retContainerInfo = append(retContainerInfo, jsonC)
+		log.Println("Container:", c.ID, string(bytContent))
+	}
+
 	return nil
 }
