@@ -62,13 +62,6 @@ func (d *DataCollector) GetProcessInfo() string {
 		}
 	}
 
-	stat, err := linuxproc.ReadStat("/proc/stat")
-	if err != nil {
-		log.Println("stat read fail.")
-	} else {
-		retProcessInfo.Stat = *stat
-	}
-
 	retProcessInfo.DockerStat = getDockerContainerStat()
 	retProcessInfo.MachineID = getMachineID()
 	retProcessInfo.Timestamp = getUnixTimestamp()
@@ -103,6 +96,13 @@ func (d *DataCollector) GetMachineInfo() string {
 		retMachineInfo.CPUInfo = *cInfo
 	}
 
+	stat, err := linuxproc.ReadStat("/proc/stat")
+	if err != nil {
+		log.Println("stat read fail.")
+	} else {
+		retMachineInfo.Stat = *stat
+	}
+	
 	err = d.GetDMIInfo(&retMachineInfo)
 	if err != nil {
 		log.Println("Get DMI error:", err)

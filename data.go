@@ -29,7 +29,6 @@ type ProcessInfo struct {
 
 	Procs      []ProcessDetail `json:"procs"`
 	ProcIO     []ProcessIO     `json:"proc_io"`
-	Stat       linuxproc.Stat  `json:"stat"`
 	DockerStat []ContainerInfo `json:"container_info"`
 }
 
@@ -38,6 +37,7 @@ type MachineInfo struct {
 	MachineID string            `json:"machine_id"`
 	Timestamp int64             `json:"timestamp"`
 	CPUInfo   linuxproc.CPUInfo `json:"cpu_info"`
+	Stat      linuxproc.Stat    `json:"stat"`
 	MemInfo   linuxproc.MemInfo `json:"mem_info"`
 	BiosInfo  BIOSInfo          `json:"bios_info"`
 	SysInfo   SystemInformation `json:"system_info"`
