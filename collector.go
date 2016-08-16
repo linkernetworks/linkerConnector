@@ -23,6 +23,8 @@ var (
 
 //DataCollector : Data Collector currently working for Linux first.
 type DataCollector struct {
+	dmiSI *SystemInformation
+	dmiBI *BIOSInfo
 }
 
 //NewDataCollector : Object constructor for data collector
@@ -129,6 +131,13 @@ func getMachineID() string {
 
 //GetDMIInfo :
 func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
+	// Using storage data to reduce retrieval time
+	if d.dmiBI != nil && d.dmiSI != nil {
+		mInfo.SysInfo = *d.dmiSI
+		mInfo.BiosInfo = *d.dmiBI
+		return nil
+	}
+
 	dmi := NewDMI()
 	err := dmi.Run()
 	if err != nil {
@@ -141,7 +150,7 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 		log.Println("Parse SI failed.")
 	}
 
-	rSI := SystemInformation{
+	d.dmiSI = &SystemInformation{
 		Manufacturer: si["Manufacturer"],
 		ProductName:  si["Product Name"],
 		Version:      si["Version"],
@@ -150,14 +159,15 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 		WakeupType:   si["Wakeup Type"],
 		SKUNumber:    si["SKU Number"],
 		Family:       si["Family"]}
-	mInfo.SysInfo = rSI
+
+	mInfo.SysInfo = *d.dmiSI
 
 	bi, err := dmi.SearchByName("BIOS Information")
 	if err != nil {
 		log.Println("Parse BI failed.")
 	}
 
-	rBI := BIOSInfo{
+	d.dmiBI = &BIOSInfo{
 		Vendor:          bi["Vendor"],
 		Version:         bi["Version"],
 		ReleaseDate:     bi["Release Date"],
@@ -165,7 +175,7 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 		RuntimeSize:     bi["Runtime Size"],
 		ROMSize:         bi["ROM Size"],
 		Characteristics: bi["Characteristics"]}
-	mInfo.BiosInfo = rBI
+	mInfo.BiosInfo = *d.dmiBI
 	return nil
 }
 
