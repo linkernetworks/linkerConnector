@@ -67,7 +67,7 @@ func (d *DataCollector) GetProcessInfo() string {
 		retProcessInfo.Stat = *stat
 	}
 
-	retProcessInfo.DockerStat = d.GetDockerContainerStat()
+	retProcessInfo.DockerStat = getDockerContainerStat()
 	retProcessInfo.MachineID = getMachineID()
 	retProcessInfo.Timestamp = getUnixTimestamp()
 
@@ -170,19 +170,21 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 }
 
 //GetDockerContainerStat :
-func (d *DataCollector) GetDockerContainerStat() []ContainerInfo {
+func getDockerContainerStat() []ContainerInfo {
 	var retContainerInfo []ContainerInfo
 
 	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
 	cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.22", nil, defaultHeaders)
 	if err != nil {
-		panic(err)
+		log.Println("No Docker CLient: err=", err)
+		return nil
 	}
 
 	options := types.ContainerListOptions{All: true}
 	containers, err := cli.ContainerList(context.Background(), options)
 	if err != nil {
-		panic(err)
+		log.Println("No ContainerList : err=", err)
+		return nil
 	}
 
 	for _, c := range containers {
@@ -190,16 +192,18 @@ func (d *DataCollector) GetDockerContainerStat() []ContainerInfo {
 		body, err := cli.ContainerStats(context.Background(), c.ID, false)
 		defer body.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("No ContainerStats : err=", err)
+			return nil
 		}
 		var jsonC ContainerInfo
 		bytContent, err := ioutil.ReadAll(body)
 
 		if err := json.Unmarshal(bytContent, &jsonC); err != nil {
-			panic(err)
+			log.Println("Unmarshal error : err=", err)
+			return nil
 		}
 		retContainerInfo = append(retContainerInfo, jsonC)
-		log.Println("Container:", c.ID, string(bytContent))
+		// log.Println("Container:", c.ID, string(bytContent))
 	}
 
 	return nil

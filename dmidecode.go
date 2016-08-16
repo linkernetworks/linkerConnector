@@ -15,17 +15,19 @@ import (
 	"strings"
 )
 
+//DMI :
 type DMI struct {
 	Data map[string]map[string]string
 }
 
+//NewDMI :
 func NewDMI() *DMI {
 	dmi := &DMI{}
 	dmi.Data = make(map[string]map[string]string)
 	return dmi
 }
 
-// Wrapper for FindBin, ExecCmd, ParseDmidecode
+//Run : Wrapper for FindBin, ExecCmd, ParseDmidecode
 func (d *DMI) Run() error {
 	bin, findErr := d.FindBin("dmidecode")
 	if findErr != nil {
@@ -44,6 +46,7 @@ func (d *DMI) Run() error {
 	return nil
 }
 
+//FindBin :
 func (d *DMI) FindBin(binary string) (string, error) {
 	locations := []string{"/sbin", "/usr/sbin", "/usr/local/sbin"}
 
@@ -60,9 +63,10 @@ func (d *DMI) FindBin(binary string) (string, error) {
 		}
 	}
 
-	return "", errors.New(fmt.Sprintf("Unable to find the '%v' binary", binary))
+	return "", fmt.Errorf("Unable to find the '%v' binary", binary)
 }
 
+//ExecDmidecode :
 func (d *DMI) ExecDmidecode(binary string) (string, error) {
 	cmd := exec.Command(binary)
 
@@ -75,7 +79,7 @@ func (d *DMI) ExecDmidecode(binary string) (string, error) {
 	return string(output), nil
 }
 
-// Gross; maybe there is a cleaner way to get this done via multiline regex
+//ParseDmidecode : Gross; maybe there is a cleaner way to get this done via multiline regex
 func (d *DMI) ParseDmidecode(output string) error {
 	// Each record is separated by double newlines
 	splitOutput := strings.Split(output, "\n\n")
@@ -158,7 +162,7 @@ func (d *DMI) ParseDmidecode(output string) error {
 	return nil
 }
 
-// Generic map lookup method
+//GenericSearchBy : Generic map lookup method
 func (d *DMI) GenericSearchBy(param, value string) (map[string]string, error) {
 	if len(d.Data) == 0 {
 		return nil, errors.New("DMI data is empty; make sure to .Run() first")
@@ -173,12 +177,12 @@ func (d *DMI) GenericSearchBy(param, value string) (map[string]string, error) {
 	return make(map[string]string), nil
 }
 
-// Search for a specific DMI record by name
+//SearchByName :Search for a specific DMI record by name
 func (d *DMI) SearchByName(name string) (map[string]string, error) {
 	return d.GenericSearchBy("DMIName", name)
 }
 
-// Search for a specific DMI record by its type
+//SearchByType :Search for a specific DMI record by its type
 func (d *DMI) SearchByType(id int) (map[string]string, error) {
 	return d.GenericSearchBy("DMIType", strconv.Itoa(id))
 }

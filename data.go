@@ -80,6 +80,7 @@ type MachineInfo struct {
 // 		CGA/mono video services are supported (int 10h)
 // 		ACPI is supported
 
+//BIOSInfo :
 type BIOSInfo struct {
 	Vendor          string `json:"vendor"`
 	Version         string `json:"version"`
