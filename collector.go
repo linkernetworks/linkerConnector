@@ -10,11 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/docker/engine-api/client"
-	"github.com/docker/engine-api/types"
-	"golang.org/x/net/context"
-
 	linuxproc "github.com/c9s/goprocinfo/linux"
+	cadvisor "github.com/google/cadvisor/client"
+	"github.com/google/cadvisor/info/v1"
 )
 
 var (
@@ -32,7 +30,7 @@ func NewDataCollector() *DataCollector {
 }
 
 //GetProcessInfo :Get ProcessInfo JSON format string.
-func (d *DataCollector) GetProcessInfo() string {
+func (d *DataCollector) GetProcessInfo(cAdvisorAddr string) string {
 	files, err := ioutil.ReadDir("/proc")
 
 	var retProcessInfo ProcessInfo
@@ -67,7 +65,7 @@ func (d *DataCollector) GetProcessInfo() string {
 		retProcessInfo.Stat = *stat
 	}
 
-	retProcessInfo.DockerStat = getDockerContainerStat()
+	retProcessInfo.DockerStat = getDockerContainerStat(cAdvisorAddr)
 	retProcessInfo.MachineID = getMachineID()
 	retProcessInfo.Timestamp = getUnixTimestamp()
 
@@ -170,41 +168,17 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 }
 
 //GetDockerContainerStat :
-func getDockerContainerStat() []ContainerInfo {
-	var retContainerInfo []ContainerInfo
-
-	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.22", nil, defaultHeaders)
+func getDockerContainerStat(cAdvisorAddr string) []v1.ContainerInfo {
+	cAdvisor, err := cadvisor.NewClient(cAdvisorAddr)
 	if err != nil {
-		log.Println("No Docker CLient: err=", err)
+		log.Println("tried to make client and got error %v", err)
 		return nil
 	}
-
-	options := types.ContainerListOptions{All: true}
-	containers, err := cli.ContainerList(context.Background(), options)
+	request := v1.ContainerInfoRequest{NumStats: 1}
+	aInfo, err := cAdvisor.AllDockerContainers(&request)
 	if err != nil {
-		log.Println("No ContainerList : err=", err)
+		log.Println("get container info error: %v", err)
 		return nil
 	}
-
-	for _, c := range containers {
-		fmt.Println(c.ID)
-		body, err := cli.ContainerStats(context.Background(), c.ID, false)
-		defer body.Close()
-		if err != nil {
-			log.Println("No ContainerStats : err=", err)
-			return nil
-		}
-		var jsonC ContainerInfo
-		bytContent, err := ioutil.ReadAll(body)
-
-		if err := json.Unmarshal(bytContent, &jsonC); err != nil {
-			log.Println("Unmarshal error : err=", err)
-			return nil
-		}
-		retContainerInfo = append(retContainerInfo, jsonC)
-		// log.Println("Container:", c.ID, string(bytContent))
-	}
-
-	return nil
+	return aInfo
 }
