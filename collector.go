@@ -10,11 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/docker/engine-api/client"
-	"github.com/docker/engine-api/types"
-	"golang.org/x/net/context"
-
 	linuxproc "github.com/c9s/goprocinfo/linux"
+	cadvisor "github.com/google/cadvisor/client"
+	"github.com/google/cadvisor/info/v1"
 )
 
 var (
@@ -23,8 +21,6 @@ var (
 
 //DataCollector : Data Collector currently working for Linux first.
 type DataCollector struct {
-	dmiSI *SystemInformation
-	dmiBI *BIOSInfo
 }
 
 //NewDataCollector : Object constructor for data collector
@@ -34,7 +30,7 @@ func NewDataCollector() *DataCollector {
 }
 
 //GetProcessInfo :Get ProcessInfo JSON format string.
-func (d *DataCollector) GetProcessInfo() string {
+func (d *DataCollector) GetProcessInfo(cAdvisorAddr string) string {
 	files, err := ioutil.ReadDir("/proc")
 
 	var retProcessInfo ProcessInfo
@@ -62,7 +58,14 @@ func (d *DataCollector) GetProcessInfo() string {
 		}
 	}
 
-	retProcessInfo.DockerStat = getDockerContainerStat()
+	stat, err := linuxproc.ReadStat("/proc/stat")
+	if err != nil {
+		log.Println("stat read fail.")
+	} else {
+		retProcessInfo.Stat = *stat
+	}
+
+	retProcessInfo.DockerStat = getDockerContainerStat(cAdvisorAddr)
 	retProcessInfo.MachineID = getMachineID()
 	retProcessInfo.Timestamp = getUnixTimestamp()
 
@@ -96,13 +99,6 @@ func (d *DataCollector) GetMachineInfo() string {
 		retMachineInfo.CPUInfo = *cInfo
 	}
 
-	stat, err := linuxproc.ReadStat("/proc/stat")
-	if err != nil {
-		log.Println("stat read fail.")
-	} else {
-		retMachineInfo.Stat = *stat
-	}
-	
 	err = d.GetDMIInfo(&retMachineInfo)
 	if err != nil {
 		log.Println("Get DMI error:", err)
@@ -131,13 +127,6 @@ func getMachineID() string {
 
 //GetDMIInfo :
 func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
-	// Using storage data to reduce retrieval time
-	if d.dmiBI != nil && d.dmiSI != nil {
-		mInfo.SysInfo = *d.dmiSI
-		mInfo.BiosInfo = *d.dmiBI
-		return nil
-	}
-
 	dmi := NewDMI()
 	err := dmi.Run()
 	if err != nil {
@@ -150,7 +139,7 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 		log.Println("Parse SI failed.")
 	}
 
-	d.dmiSI = &SystemInformation{
+	rSI := SystemInformation{
 		Manufacturer: si["Manufacturer"],
 		ProductName:  si["Product Name"],
 		Version:      si["Version"],
@@ -159,15 +148,14 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 		WakeupType:   si["Wakeup Type"],
 		SKUNumber:    si["SKU Number"],
 		Family:       si["Family"]}
-
-	mInfo.SysInfo = *d.dmiSI
+	mInfo.SysInfo = rSI
 
 	bi, err := dmi.SearchByName("BIOS Information")
 	if err != nil {
 		log.Println("Parse BI failed.")
 	}
 
-	d.dmiBI = &BIOSInfo{
+	rBI := BIOSInfo{
 		Vendor:          bi["Vendor"],
 		Version:         bi["Version"],
 		ReleaseDate:     bi["Release Date"],
@@ -175,46 +163,22 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 		RuntimeSize:     bi["Runtime Size"],
 		ROMSize:         bi["ROM Size"],
 		Characteristics: bi["Characteristics"]}
-	mInfo.BiosInfo = *d.dmiBI
+	mInfo.BiosInfo = rBI
 	return nil
 }
 
 //GetDockerContainerStat :
-func getDockerContainerStat() []ContainerInfo {
-	var retContainerInfo []ContainerInfo
-
-	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.22", nil, defaultHeaders)
+func getDockerContainerStat(cAdvisorAddr string) []v1.ContainerInfo {
+	cAdvisor, err := cadvisor.NewClient(cAdvisorAddr)
 	if err != nil {
-		log.Println("No Docker CLient: err=", err)
+		log.Println("Tried to make client and got error: ", err)
 		return nil
 	}
-
-	options := types.ContainerListOptions{All: true}
-	containers, err := cli.ContainerList(context.Background(), options)
+	request := v1.ContainerInfoRequest{NumStats: 1}
+	aInfo, err := cAdvisor.AllDockerContainers(&request)
 	if err != nil {
-		log.Println("No ContainerList : err=", err)
+		log.Println("Get container info error: ", err)
 		return nil
 	}
-
-	for _, c := range containers {
-		fmt.Println(c.ID)
-		body, err := cli.ContainerStats(context.Background(), c.ID, false)
-		defer body.Close()
-		if err != nil {
-			log.Println("No ContainerStats : err=", err)
-			return nil
-		}
-		var jsonC ContainerInfo
-		bytContent, err := ioutil.ReadAll(body)
-
-		if err := json.Unmarshal(bytContent, &jsonC); err != nil {
-			log.Println("Unmarshal error : err=", err)
-			return nil
-		}
-		retContainerInfo = append(retContainerInfo, jsonC)
-		// log.Println("Container:", c.ID, string(bytContent))
-	}
-
-	return nil
+	return aInfo
 }
