@@ -33,6 +33,7 @@ linkerConnector --help
 Options
 ---------------
 
+- `cAdvisorAddr`/`c` : Http Url for cAdvisor REST API
 - `server`/`s` : The comma separated list of server could be brokers in the Kafka cluster or spark address.
 - `topic`/`t` : The topic to kafka produce.
 - `interval`/`i` : Time interval(second) to retrieval data , default 0 is not repeat.
@@ -60,6 +61,7 @@ TODOs
 	- [X] ProcessInfo
 		- [X] Proc Information
 		- [X] File Info
+		- [X] Host's all Container Info
 	- [ ] MachineIndo
 		- [X] CPUInfo
 		- [X] MemInfo
