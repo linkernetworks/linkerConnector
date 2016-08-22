@@ -171,13 +171,13 @@ func (d *DataCollector) GetDMIInfo(mInfo *MachineInfo) error {
 func getDockerContainerStat(cAdvisorAddr string) []v1.ContainerInfo {
 	cAdvisor, err := cadvisor.NewClient(cAdvisorAddr)
 	if err != nil {
-		log.Println("tried to make client and got error %v", err)
+		log.Println("Tried to make client and got error: ", err)
 		return nil
 	}
 	request := v1.ContainerInfoRequest{NumStats: 1}
 	aInfo, err := cAdvisor.AllDockerContainers(&request)
 	if err != nil {
-		log.Println("get container info error: %v", err)
+		log.Println("Get container info error: ", err)
 		return nil
 	}
 	return aInfo
