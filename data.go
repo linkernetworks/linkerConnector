@@ -1,9 +1,8 @@
 package main
 
 import (
-	"time"
-
 	linuxproc "github.com/c9s/goprocinfo/linux"
+	"github.com/google/cadvisor/info/v1"
 )
 
 //ProcessDetail :
@@ -27,9 +26,11 @@ type ProcessInfo struct {
 	MachineID string `json:"machine_id"`
 	Timestamp int64  `json:"timestamp"`
 
-	Procs      []ProcessDetail `json:"procs"`
-	ProcIO     []ProcessIO     `json:"proc_io"`
-	DockerStat []ContainerInfo `json:"container_info"`
+	Procs  []ProcessDetail `json:"procs"`
+	ProcIO []ProcessIO     `json:"proc_io"`
+	Stat   linuxproc.Stat  `json:"stat"`
+	// DockerStat []ContainerInfo `json:"container_info"`
+	DockerStat []v1.ContainerInfo `json:"docker_stat"`
 }
 
 //MachineInfo :Machine information
@@ -37,7 +38,6 @@ type MachineInfo struct {
 	MachineID string            `json:"machine_id"`
 	Timestamp int64             `json:"timestamp"`
 	CPUInfo   linuxproc.CPUInfo `json:"cpu_info"`
-	Stat      linuxproc.Stat    `json:"stat"`
 	MemInfo   linuxproc.MemInfo `json:"mem_info"`
 	BiosInfo  BIOSInfo          `json:"bios_info"`
 	SysInfo   SystemInformation `json:"system_info"`
@@ -114,111 +114,111 @@ type SystemInformation struct {
 }
 
 //ContainerInfo :
-type ContainerInfo struct {
-	Read        time.Time `json:"read"`
-	PrecpuStats struct {
-		CPUUsage struct {
-			TotalUsage        int   `json:"total_usage"`
-			PercpuUsage       []int `json:"percpu_usage"`
-			UsageInKernelmode int   `json:"usage_in_kernelmode"`
-			UsageInUsermode   int   `json:"usage_in_usermode"`
-		} `json:"cpu_usage"`
-		SystemCPUUsage int64 `json:"system_cpu_usage"`
-		ThrottlingData struct {
-			Periods          int `json:"periods"`
-			ThrottledPeriods int `json:"throttled_periods"`
-			ThrottledTime    int `json:"throttled_time"`
-		} `json:"throttling_data"`
-	} `json:"precpu_stats"`
-	CPUStats struct {
-		CPUUsage struct {
-			TotalUsage        int   `json:"total_usage"`
-			PercpuUsage       []int `json:"percpu_usage"`
-			UsageInKernelmode int   `json:"usage_in_kernelmode"`
-			UsageInUsermode   int   `json:"usage_in_usermode"`
-		} `json:"cpu_usage"`
-		SystemCPUUsage int64 `json:"system_cpu_usage"`
-		ThrottlingData struct {
-			Periods          int `json:"periods"`
-			ThrottledPeriods int `json:"throttled_periods"`
-			ThrottledTime    int `json:"throttled_time"`
-		} `json:"throttling_data"`
-	} `json:"cpu_stats"`
-	MemoryStats struct {
-		Usage    int `json:"usage"`
-		MaxUsage int `json:"max_usage"`
-		Stats    struct {
-			ActiveAnon              int   `json:"active_anon"`
-			ActiveFile              int   `json:"active_file"`
-			Cache                   int   `json:"cache"`
-			Dirty                   int   `json:"dirty"`
-			HierarchicalMemoryLimit int64 `json:"hierarchical_memory_limit"`
-			HierarchicalMemswLimit  int64 `json:"hierarchical_memsw_limit"`
-			InactiveAnon            int   `json:"inactive_anon"`
-			InactiveFile            int   `json:"inactive_file"`
-			MappedFile              int   `json:"mapped_file"`
-			Pgfault                 int   `json:"pgfault"`
-			Pgmajfault              int   `json:"pgmajfault"`
-			Pgpgin                  int   `json:"pgpgin"`
-			Pgpgout                 int   `json:"pgpgout"`
-			Rss                     int   `json:"rss"`
-			RssHuge                 int   `json:"rss_huge"`
-			Swap                    int   `json:"swap"`
-			TotalActiveAnon         int   `json:"total_active_anon"`
-			TotalActiveFile         int   `json:"total_active_file"`
-			TotalCache              int   `json:"total_cache"`
-			TotalDirty              int   `json:"total_dirty"`
-			TotalInactiveAnon       int   `json:"total_inactive_anon"`
-			TotalInactiveFile       int   `json:"total_inactive_file"`
-			TotalMappedFile         int   `json:"total_mapped_file"`
-			TotalPgfault            int   `json:"total_pgfault"`
-			TotalPgmajfault         int   `json:"total_pgmajfault"`
-			TotalPgpgin             int   `json:"total_pgpgin"`
-			TotalPgpgout            int   `json:"total_pgpgout"`
-			TotalRss                int   `json:"total_rss"`
-			TotalRssHuge            int   `json:"total_rss_huge"`
-			TotalSwap               int   `json:"total_swap"`
-			TotalUnevictable        int   `json:"total_unevictable"`
-			TotalWriteback          int   `json:"total_writeback"`
-			Unevictable             int   `json:"unevictable"`
-			Writeback               int   `json:"writeback"`
-		} `json:"stats"`
-		Failcnt int `json:"failcnt"`
-		Limit   int `json:"limit"`
-	} `json:"memory_stats"`
-	BlkioStats struct {
-		IoServiceBytesRecursive []struct {
-			Major int    `json:"major"`
-			Minor int    `json:"minor"`
-			Op    string `json:"op"`
-			Value int    `json:"value"`
-		} `json:"io_service_bytes_recursive"`
-		IoServicedRecursive []struct {
-			Major int    `json:"major"`
-			Minor int    `json:"minor"`
-			Op    string `json:"op"`
-			Value int    `json:"value"`
-		} `json:"io_serviced_recursive"`
-		IoQueueRecursive       []interface{} `json:"io_queue_recursive"`
-		IoServiceTimeRecursive []interface{} `json:"io_service_time_recursive"`
-		IoWaitTimeRecursive    []interface{} `json:"io_wait_time_recursive"`
-		IoMergedRecursive      []interface{} `json:"io_merged_recursive"`
-		IoTimeRecursive        []interface{} `json:"io_time_recursive"`
-		SectorsRecursive       []interface{} `json:"sectors_recursive"`
-	} `json:"blkio_stats"`
-	PidsStats struct {
-		Current int `json:"current"`
-	} `json:"pids_stats"`
-	Networks struct {
-		Eth0 struct {
-			RxBytes   int `json:"rx_bytes"`
-			RxPackets int `json:"rx_packets"`
-			RxErrors  int `json:"rx_errors"`
-			RxDropped int `json:"rx_dropped"`
-			TxBytes   int `json:"tx_bytes"`
-			TxPackets int `json:"tx_packets"`
-			TxErrors  int `json:"tx_errors"`
-			TxDropped int `json:"tx_dropped"`
-		} `json:"eth0"`
-	} `json:"networks"`
-}
+// type ContainerInfo struct {
+// 	Read        time.Time `json:"read"`
+// 	PrecpuStats struct {
+// 		CPUUsage struct {
+// 			TotalUsage        int   `json:"total_usage"`
+// 			PercpuUsage       []int `json:"percpu_usage"`
+// 			UsageInKernelmode int   `json:"usage_in_kernelmode"`
+// 			UsageInUsermode   int   `json:"usage_in_usermode"`
+// 		} `json:"cpu_usage"`
+// 		SystemCPUUsage int64 `json:"system_cpu_usage"`
+// 		ThrottlingData struct {
+// 			Periods          int `json:"periods"`
+// 			ThrottledPeriods int `json:"throttled_periods"`
+// 			ThrottledTime    int `json:"throttled_time"`
+// 		} `json:"throttling_data"`
+// 	} `json:"precpu_stats"`
+// 	CPUStats struct {
+// 		CPUUsage struct {
+// 			TotalUsage        int   `json:"total_usage"`
+// 			PercpuUsage       []int `json:"percpu_usage"`
+// 			UsageInKernelmode int   `json:"usage_in_kernelmode"`
+// 			UsageInUsermode   int   `json:"usage_in_usermode"`
+// 		} `json:"cpu_usage"`
+// 		SystemCPUUsage int64 `json:"system_cpu_usage"`
+// 		ThrottlingData struct {
+// 			Periods          int `json:"periods"`
+// 			ThrottledPeriods int `json:"throttled_periods"`
+// 			ThrottledTime    int `json:"throttled_time"`
+// 		} `json:"throttling_data"`
+// 	} `json:"cpu_stats"`
+// 	MemoryStats struct {
+// 		Usage    int `json:"usage"`
+// 		MaxUsage int `json:"max_usage"`
+// 		Stats    struct {
+// 			ActiveAnon              int   `json:"active_anon"`
+// 			ActiveFile              int   `json:"active_file"`
+// 			Cache                   int   `json:"cache"`
+// 			Dirty                   int   `json:"dirty"`
+// 			HierarchicalMemoryLimit int64 `json:"hierarchical_memory_limit"`
+// 			HierarchicalMemswLimit  int64 `json:"hierarchical_memsw_limit"`
+// 			InactiveAnon            int   `json:"inactive_anon"`
+// 			InactiveFile            int   `json:"inactive_file"`
+// 			MappedFile              int   `json:"mapped_file"`
+// 			Pgfault                 int   `json:"pgfault"`
+// 			Pgmajfault              int   `json:"pgmajfault"`
+// 			Pgpgin                  int   `json:"pgpgin"`
+// 			Pgpgout                 int   `json:"pgpgout"`
+// 			Rss                     int   `json:"rss"`
+// 			RssHuge                 int   `json:"rss_huge"`
+// 			Swap                    int   `json:"swap"`
+// 			TotalActiveAnon         int   `json:"total_active_anon"`
+// 			TotalActiveFile         int   `json:"total_active_file"`
+// 			TotalCache              int   `json:"total_cache"`
+// 			TotalDirty              int   `json:"total_dirty"`
+// 			TotalInactiveAnon       int   `json:"total_inactive_anon"`
+// 			TotalInactiveFile       int   `json:"total_inactive_file"`
+// 			TotalMappedFile         int   `json:"total_mapped_file"`
+// 			TotalPgfault            int   `json:"total_pgfault"`
+// 			TotalPgmajfault         int   `json:"total_pgmajfault"`
+// 			TotalPgpgin             int   `json:"total_pgpgin"`
+// 			TotalPgpgout            int   `json:"total_pgpgout"`
+// 			TotalRss                int   `json:"total_rss"`
+// 			TotalRssHuge            int   `json:"total_rss_huge"`
+// 			TotalSwap               int   `json:"total_swap"`
+// 			TotalUnevictable        int   `json:"total_unevictable"`
+// 			TotalWriteback          int   `json:"total_writeback"`
+// 			Unevictable             int   `json:"unevictable"`
+// 			Writeback               int   `json:"writeback"`
+// 		} `json:"stats"`
+// 		Failcnt int `json:"failcnt"`
+// 		Limit   int `json:"limit"`
+// 	} `json:"memory_stats"`
+// 	BlkioStats struct {
+// 		IoServiceBytesRecursive []struct {
+// 			Major int    `json:"major"`
+// 			Minor int    `json:"minor"`
+// 			Op    string `json:"op"`
+// 			Value int    `json:"value"`
+// 		} `json:"io_service_bytes_recursive"`
+// 		IoServicedRecursive []struct {
+// 			Major int    `json:"major"`
+// 			Minor int    `json:"minor"`
+// 			Op    string `json:"op"`
+// 			Value int    `json:"value"`
+// 		} `json:"io_serviced_recursive"`
+// 		IoQueueRecursive       []interface{} `json:"io_queue_recursive"`
+// 		IoServiceTimeRecursive []interface{} `json:"io_service_time_recursive"`
+// 		IoWaitTimeRecursive    []interface{} `json:"io_wait_time_recursive"`
+// 		IoMergedRecursive      []interface{} `json:"io_merged_recursive"`
+// 		IoTimeRecursive        []interface{} `json:"io_time_recursive"`
+// 		SectorsRecursive       []interface{} `json:"sectors_recursive"`
+// 	} `json:"blkio_stats"`
+// 	PidsStats struct {
+// 		Current int `json:"current"`
+// 	} `json:"pids_stats"`
+// 	Networks struct {
+// 		Eth0 struct {
+// 			RxBytes   int `json:"rx_bytes"`
+// 			RxPackets int `json:"rx_packets"`
+// 			RxErrors  int `json:"rx_errors"`
+// 			RxDropped int `json:"rx_dropped"`
+// 			TxBytes   int `json:"tx_bytes"`
+// 			TxPackets int `json:"tx_packets"`
+// 			TxErrors  int `json:"tx_errors"`
+// 			TxDropped int `json:"tx_dropped"`
+// 		} `json:"eth0"`
+// 	} `json:"networks"`
+// }

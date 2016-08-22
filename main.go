@@ -18,7 +18,7 @@ var (
 
 func main() {
 	send = sendr.NewSender("linkerConnector")
-	var serverAddr, topic, dest string
+	var serverAddr, topic, dest, cAdvisorAddr string
 	var interval int
 	var usingPipe, disableFile bool
 	rootCmd := &cobra.Command{
@@ -41,7 +41,7 @@ func main() {
 
 			for {
 				data := NewDataCollector()
-				procInfo := data.GetProcessInfo()
+				procInfo := data.GetProcessInfo(cAdvisorAddr)
 				machineInfo := data.GetMachineInfo()
 
 				send.SendData(sendr.SendDataParam{Dest: dest, SerAddr: serverAddr, Topic: topic, Key: "ProcessInfo", Value: procInfo, DisableFileSave: disableFile})
@@ -61,6 +61,7 @@ func main() {
 	rootCmd.Flags().StringVarP(&serverAddr, "server", "s", "", "The comma separated list of server could be brokers in the Kafka cluster or spark address")
 	rootCmd.Flags().StringVarP(&topic, "topic", "t", "", "The topic to kafka produce")
 	rootCmd.Flags().StringVarP(&dest, "dest", "d", "stdout", "Destination to kafka, spark and stdout")
+	rootCmd.Flags().StringVarP(&cAdvisorAddr, "cAdvisorAddr", "c", "", "Http Url and port for cAdvisor REST API (e.g. http://hostip:port)")
 	rootCmd.Flags().BoolVarP(&usingPipe, "pipe", "p", false, "Using pipe mode to forward data")
 	rootCmd.Flags().BoolVarP(&disableFile, "dsiableFileSave", "f", false, "Disable local file save.")
 
