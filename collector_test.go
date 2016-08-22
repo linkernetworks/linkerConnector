@@ -26,14 +26,14 @@ func TestGetMachineInfo(t *testing.T) {
 }
 
 //GetProcessInfo :
-func TestGetProcessInfo(t *testing.T) {
-	d := NewDataCollector()
-	if d == nil {
-		t.Error("Constructor error")
-	}
+// func TestGetProcessInfo(t *testing.T) {
+// 	d := NewDataCollector()
+// 	if d == nil {
+// 		t.Error("Constructor error")
+// 	}
 
-	ret := d.GetProcessInfo()
-	if ret == "" {
-		t.Error("Get process info error.")
-	}
-}
+// 	ret := d.GetProcessInfo()
+// 	if ret == "" {
+// 		t.Error("Get process info error.")
+// 	}
+// }
