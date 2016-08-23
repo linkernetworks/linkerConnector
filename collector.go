@@ -104,6 +104,13 @@ func (d *DataCollector) GetMachineInfo() string {
 		log.Println("Get DMI error:", err)
 	}
 
+	stat, err := linuxproc.ReadStat("/proc/stat")
+	if err != nil {
+		log.Println("stat read fail.")
+	} else {
+		retMachineInfo.Stat = *stat
+	}
+
 	retJSON, err := json.Marshal(retMachineInfo)
 	if err != nil {
 		log.Println("marshall json failed:", err)
