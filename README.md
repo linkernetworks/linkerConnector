@@ -28,12 +28,21 @@ linkerConnector  (-server=XXX) (-dest=XXX) ...
 
 ## Check all command destription
 linkerConnector --help
+
+## optional: using make
+make compile-static-amd64: static compile
+make docker-build: build a docker image whose name is linkerrepository/linker_connector
+make container-run: run the image built above
+make container-stop: stop container
+make container-clean: remove container
+make clean: clean binary file
 ```    
 
 Options
 ---------------
 
-- `cAdvisorAddr`/`c` : Http Url for cAdvisor REST API
+- `readProcPath`/`r` : File path of proc for linkerConnector to read from.
+- `cAdvisorAddr`/`c` : Http Url for cAdvisor REST API.
 - `server`/`s` : The comma separated list of server could be brokers in the Kafka cluster or spark address.
 - `topic`/`t` : The topic to kafka produce.
 - `interval`/`i` : Time interval(second) to retrieval data , default 0 is not repeat.
