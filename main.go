@@ -18,7 +18,7 @@ var (
 
 func main() {
 	send = sendr.NewSender("linkerConnector")
-	var serverAddr, topic, dest, cAdvisorAddr string
+	var serverAddr, topic, dest, cAdvisorAddr, readProcPath string
 	var interval int
 	var usingPipe, disableFile bool
 	rootCmd := &cobra.Command{
@@ -41,8 +41,8 @@ func main() {
 
 			for {
 				data := NewDataCollector()
-				procInfo := data.GetProcessInfo(cAdvisorAddr)
-				machineInfo := data.GetMachineInfo()
+				procInfo := data.GetProcessInfo(cAdvisorAddr, readProcPath)
+				machineInfo := data.GetMachineInfo(readProcPath)
 
 				send.SendData(sendr.SendDataParam{Dest: dest, SerAddr: serverAddr, Topic: topic, Key: "ProcessInfo", Value: procInfo, DisableFileSave: disableFile})
 				send.SendData(sendr.SendDataParam{Dest: dest, SerAddr: serverAddr, Topic: topic, Key: "MachineInfo", Value: machineInfo, DisableFileSave: disableFile})
@@ -58,6 +58,7 @@ func main() {
 
 	rootCmd.Flags().IntVarP(&interval, "interval", "i", 0, "Interval to retrieval data(millisecond), default 0 is not repeat.")
 
+	rootCmd.Flags().StringVarP(&readProcPath, "readProcPath", "r", "/proc", "File path of proc for linkerConnector to read from.")
 	rootCmd.Flags().StringVarP(&serverAddr, "server", "s", "", "The comma separated list of server could be brokers in the Kafka cluster or spark address")
 	rootCmd.Flags().StringVarP(&topic, "topic", "t", "", "The topic to kafka produce")
 	rootCmd.Flags().StringVarP(&dest, "dest", "d", "stdout", "Destination to kafka, spark and stdout")

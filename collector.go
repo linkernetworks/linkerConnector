@@ -30,8 +30,8 @@ func NewDataCollector() *DataCollector {
 }
 
 //GetProcessInfo :Get ProcessInfo JSON format string.
-func (d *DataCollector) GetProcessInfo(cAdvisorAddr string) string {
-	files, err := ioutil.ReadDir("/proc")
+func (d *DataCollector) GetProcessInfo(cAdvisorAddr, readProcPath string) string {
+	files, err := ioutil.ReadDir(readProcPath)
 
 	var retProcessInfo ProcessInfo
 	for _, file := range files {
@@ -40,14 +40,14 @@ func (d *DataCollector) GetProcessInfo(cAdvisorAddr string) string {
 			var procDetail ProcessDetail
 			procDetail.ProcID, _ = strconv.ParseUint(file.Name(), 10, 64)
 
-			status, err := linuxproc.ReadProcessStatus(fmt.Sprintf("/proc/%s/status", file.Name()))
+			status, err := linuxproc.ReadProcessStatus(fmt.Sprintf("%s/%s/status", readProcPath, file.Name()))
 			if err != nil {
 				log.Println("status read fail.")
 			} else {
 				procDetail.StatusInfo = *status
 			}
 
-			pStat, err := linuxproc.ReadProcessStat(fmt.Sprintf("/proc/%s/stat", file.Name()))
+			pStat, err := linuxproc.ReadProcessStat(fmt.Sprintf("%s/%s/stat", readProcPath, file.Name()))
 			if err != nil {
 				log.Println("status read fail.")
 			} else {
@@ -58,7 +58,7 @@ func (d *DataCollector) GetProcessInfo(cAdvisorAddr string) string {
 		}
 	}
 
-	stat, err := linuxproc.ReadStat("/proc/stat")
+	stat, err := linuxproc.ReadStat(fmt.Sprintf("%s/stat", readProcPath))
 	if err != nil {
 		log.Println("stat read fail.")
 	} else {
@@ -80,19 +80,19 @@ func (d *DataCollector) GetProcessInfo(cAdvisorAddr string) string {
 }
 
 //GetMachineInfo :Get MachineInfo JSON format string.
-func (d *DataCollector) GetMachineInfo() string {
+func (d *DataCollector) GetMachineInfo(readProcPath string) string {
 	var retMachineInfo MachineInfo
 	retMachineInfo.MachineID = getMachineID()
 	retMachineInfo.Timestamp = getUnixTimestamp()
 
-	mInfo, err := linuxproc.ReadMemInfo("/proc/meminfo")
+	mInfo, err := linuxproc.ReadMemInfo(fmt.Sprintf("%s/meminfo", readProcPath))
 	if err != nil {
 		log.Println("memory info read fail.")
 	} else {
 		retMachineInfo.MemInfo = *mInfo
 	}
 
-	cInfo, err := linuxproc.ReadCPUInfo("/proc/cpuinfo")
+	cInfo, err := linuxproc.ReadCPUInfo(fmt.Sprintf("%s/cpuinfo", readProcPath))
 	if err != nil {
 		log.Println("CPU info read fail.")
 	} else {
@@ -104,7 +104,7 @@ func (d *DataCollector) GetMachineInfo() string {
 		log.Println("Get DMI error:", err)
 	}
 
-	stat, err := linuxproc.ReadStat("/proc/stat")
+	stat, err := linuxproc.ReadStat(fmt.Sprintf("%s/stat", readProcPath))
 	if err != nil {
 		log.Println("stat read fail.")
 	} else {
