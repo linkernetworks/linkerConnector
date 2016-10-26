@@ -1,15 +1,16 @@
 language: go
 
 go:
-    - 1.6
-    - tip
+  - 1.6.3
+  - 1.7.3
+  - tip
 
-before_install:
+install:
+  - go get -v -t ./...
 
 script:
-    - go vet ./...
-    - go test
-#    - $HOME/gopath/bin/goveralls -coverprofile=coverage.cov -service=travis-ci
-#    - bash <(curl -s https://codecov.io/bash)
-#- go test -bench=. -benchmem ./...
-    #- sh ./install_all_cmd.sh
+  - go vet ./...
+  - go test -v -coverprofile=coverage.txt
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f coverage.txt
