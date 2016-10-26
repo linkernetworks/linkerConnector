@@ -5,6 +5,9 @@ go:
   - 1.7.3
   - tip
 
+install:
+  - go get -v -t ./...
+
 script:
   - go vet ./...
   - go test -v -coverprofile=coverage.txt
