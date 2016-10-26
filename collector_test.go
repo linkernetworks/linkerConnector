@@ -19,7 +19,7 @@ func TestGetMachineInfo(t *testing.T) {
 		t.Error("Constructor error")
 	}
 
-	ret := d.GetMachineInfo()
+	ret := d.GetMachineInfo("")
 	if ret == "" {
 		t.Error("Get machine info error.")
 	}
